@@ -1,36 +1,35 @@
 pipeline {
     agent any
-
+ 
     tools {
-        // Use the Maven installation configured in Jenkins (ensure the name matches)
+        // Install the Maven version configured as "M3" and add it to the path.
         maven "maven3"
     }
-
+ 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                // Clone the repository from GitHub
-                git 'https://github.com/ioannis-mac/projet-maven.git'
+                // Get some code from a GitHub repository
+                git branch: 'master', url: 'https://github.com/ioannis-mac/projet-maven.git'
             }
         }
-        stage('Build Maven') {
+        stage('Build') {
             steps {
-                // Run Maven build and package the application
-                sh "mvn -Dmaven.test.failure.ignore=true clean package"
-            }
-            post {
-                // Post-build actions
-                success {
-                    // Record test results
-                    junit '**/target/surefire-reports/TEST-*.xml'
-                    // Archive the built jar file
-                    archiveArtifacts 'target/*.jar'
-                }
-                failure {
-                    // Optionally handle the failure case
-                    echo 'Build failed!'
-                }
+                // Run Maven on a Unix agent.
+                sh "mvn -DskipTests clean package"
             }
         }
+        stage('Test') {
+            steps {
+                // Run Maven on a Unix agent.
+                sh "mvn test"
+            }
+        }    
+        stage('Deploy') {
+            steps {
+                // Run Maven on a Unix agent.
+                echo "Artifact deployed"
+            }
+        }          
     }
 }
